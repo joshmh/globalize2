@@ -2,15 +2,15 @@ PATH
   remote: .
   specs:
     globalize2 (0.2.1)
-      activerecord (= 2.3.6)
+      activerecord (= 2.3.11)
       globalize2
 
 GEM
   remote: http://rubygems.org/
   specs:
-    activerecord (2.3.6)
-      activesupport (= 2.3.6)
-    activesupport (2.3.6)
+    activerecord (2.3.11)
+      activesupport (= 2.3.11)
+    activesupport (2.3.11)
     git (1.2.5)
     jeweler (1.5.2)
       bundler (~> 1.0.0)
