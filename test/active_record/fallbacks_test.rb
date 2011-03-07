@@ -81,7 +81,7 @@ if I18n.respond_to?(:fallbacks)
       assert_equal 'bar', post.subject
     end
 
-    test 'fallbacks with lots of locale switching' do
+    test 'fallbacks with lots more locale switching' do
       I18n.fallbacks.map :'de-DE' => [ :'en-US' ]
       child = Child.create :content => 'foo'
 
