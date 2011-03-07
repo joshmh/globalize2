@@ -9,11 +9,12 @@ class MigrationTest < ActiveSupport::TestCase
 
   test 'globalize table added' do
     assert !Post.connection.table_exists?(:post_translations)
-    assert !Post.connection.index_exists?(:post_translations, :post_id)
+    assert !PostTranslation.index_exists_on?(:post_id)
 
     Post.create_translation_table!(:subject => :string, :content => :text)
+    #assert Post.connection.respond_to?(:indexes)
     assert Post.connection.table_exists?(:post_translations)
-    assert Post.connection.index_exists?(:post_translations, :post_id)
+    assert PostTranslation.index_exists_on?(:post_id)
 
     columns = Post.connection.columns(:post_translations)
     assert locale = columns.detect { |c| c.name == 'locale' }
@@ -32,13 +33,13 @@ class MigrationTest < ActiveSupport::TestCase
 
   test 'globalize table dropped' do
     assert !Post.connection.table_exists?( :post_translations )
-    assert !Post.connection.index_exists?( :post_translations, :post_id )
+    assert !PostTranslation.index_exists_on?(:post_id)
     Post.create_translation_table! :subject => :string, :content => :text
     assert Post.connection.table_exists?( :post_translations )
-    assert Post.connection.index_exists?( :post_translations, :post_id )
+    assert PostTranslation.index_exists_on?(:post_id)
     Post.drop_translation_table!
     assert !Post.connection.table_exists?( :post_translations )
-    assert !Post.connection.index_exists?( :post_translations, :post_id )
+    assert !PostTranslation.index_exists_on?(:post_id)
   end
 
   test 'exception on missing field inputs' do
@@ -93,9 +94,8 @@ class MigrationTest < ActiveSupport::TestCase
     )
     assert UltraLongModelNameWithoutProper.connection.index_exists?(
       :ultra_long_model_name_without_proper_translations,
-      :name => UltraLongModelNameWithoutProper.send(
-        :translation_index_name
-      )
+      UltraLongModelNameWithoutProper.send(:translation_index_name),
+      false
     )
   end
 
@@ -111,7 +111,8 @@ class MigrationTest < ActiveSupport::TestCase
     )
     assert !UltraLongModelNameWithoutProper.connection.index_exists?(
       :ultra_long_model_name_without_proper_translations,
-      :ultra_long_model_name_without_proper_id
+      :ultra_long_model_name_without_proper_id, 
+      false
     )
   end
 

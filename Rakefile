@@ -31,8 +31,8 @@ begin
     s.homepage = "http://github.com/joshmh/globalize2"
     # s.rubyforge_project = ''
     s.authors = ["Sven Fuchs, Joshua Harvey, Clemens Kofler, John-Paul Bader"]
-    s.add_dependency('activerecord', '= 2.3.5')
-    s.add_dependency('i18n', '~> 0.4.2')
+    s.add_dependency('activerecord', '= 2.3.6')
+      # activesupport 2.3.11 vendors i18n 0.4.1
     s.add_development_dependency('sqlite3', '~> 1.3')
     s.add_development_dependency('mocha', '~> 0.9')
     s.add_development_dependency('rake', '~> 0.8')

@@ -17,6 +17,8 @@ Gem::Specification.new do |s|
     "README.textile"
   ]
   s.files = [
+    "Gemfile",
+    "Gemfile.lock",
     "LICENSE",
     "README.textile",
     "Rakefile",
@@ -72,16 +74,30 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<globalize2>, [">= 0"])
-      s.add_runtime_dependency(%q<activerecord>, ["= 2.3.5"])
-      s.add_runtime_dependency(%q<i18n>, ["~> 0.4.2"])
+      s.add_development_dependency(%q<sqlite3>, ["~> 1.3"])
+      s.add_development_dependency(%q<mocha>, ["~> 0.9"])
+      s.add_development_dependency(%q<rake>, ["~> 0.8"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.5"])
+      s.add_development_dependency(%q<sqlite3>, ["~> 1.3"])
+      s.add_development_dependency(%q<mocha>, ["~> 0.9"])
+      s.add_development_dependency(%q<rake>, ["~> 0.8"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.5"])
+      s.add_runtime_dependency(%q<activerecord>, ["= 2.3.6"])
       s.add_development_dependency(%q<sqlite3>, ["~> 1.3"])
       s.add_development_dependency(%q<mocha>, ["~> 0.9"])
       s.add_development_dependency(%q<rake>, ["~> 0.8"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5"])
     else
       s.add_dependency(%q<globalize2>, [">= 0"])
-      s.add_dependency(%q<activerecord>, ["= 2.3.5"])
-      s.add_dependency(%q<i18n>, ["~> 0.4.2"])
+      s.add_dependency(%q<sqlite3>, ["~> 1.3"])
+      s.add_dependency(%q<mocha>, ["~> 0.9"])
+      s.add_dependency(%q<rake>, ["~> 0.8"])
+      s.add_dependency(%q<jeweler>, ["~> 1.5"])
+      s.add_dependency(%q<sqlite3>, ["~> 1.3"])
+      s.add_dependency(%q<mocha>, ["~> 0.9"])
+      s.add_dependency(%q<rake>, ["~> 0.8"])
+      s.add_dependency(%q<jeweler>, ["~> 1.5"])
+      s.add_dependency(%q<activerecord>, ["= 2.3.6"])
       s.add_dependency(%q<sqlite3>, ["~> 1.3"])
       s.add_dependency(%q<mocha>, ["~> 0.9"])
       s.add_dependency(%q<rake>, ["~> 0.8"])
@@ -89,8 +105,15 @@ Gem::Specification.new do |s|
     end
   else
     s.add_dependency(%q<globalize2>, [">= 0"])
-    s.add_dependency(%q<activerecord>, ["= 2.3.5"])
-    s.add_dependency(%q<i18n>, ["~> 0.4.2"])
+    s.add_dependency(%q<sqlite3>, ["~> 1.3"])
+    s.add_dependency(%q<mocha>, ["~> 0.9"])
+    s.add_dependency(%q<rake>, ["~> 0.8"])
+    s.add_dependency(%q<jeweler>, ["~> 1.5"])
+    s.add_dependency(%q<sqlite3>, ["~> 1.3"])
+    s.add_dependency(%q<mocha>, ["~> 0.9"])
+    s.add_dependency(%q<rake>, ["~> 0.8"])
+    s.add_dependency(%q<jeweler>, ["~> 1.5"])
+    s.add_dependency(%q<activerecord>, ["= 2.3.6"])
     s.add_dependency(%q<sqlite3>, ["~> 1.3"])
     s.add_dependency(%q<mocha>, ["~> 0.9"])
     s.add_dependency(%q<rake>, ["~> 0.8"])
