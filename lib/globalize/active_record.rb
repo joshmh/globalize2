@@ -156,8 +156,11 @@ module Globalize
 
       def attributes
         self.attribute_names.inject({}) do |attrs, name|
-          attrs[name] = read_attribute(name) ||
-            (globalize.fetch(I18n.locale, name) rescue nil)
+          if @attributes.include? name.to_s
+            attrs[name] = read_attribute(name)
+          else
+            attrs[name] = (globalize.fetch(I18n.locale, name) rescue nil)
+          end
           attrs
         end
       end
@@ -196,10 +199,10 @@ module Globalize
         end
       end
 
-      def reload(options = nil)
+      def reload(*args)
         translated_attribute_names.each { |name| @attributes.delete(name.to_s) }
         globalize.reset
-        super(options)
+        super(*args)
       end
 
       protected

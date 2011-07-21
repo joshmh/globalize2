@@ -458,6 +458,7 @@ class ActiveRecordTest < ActiveSupport::TestCase
     assert Post.last.to_xml =~ /subject/
     assert Post.last.to_xml =~ /content/
   end
+
 end
 
 # TODO error checking for fields that exist in main table, don't exist in
