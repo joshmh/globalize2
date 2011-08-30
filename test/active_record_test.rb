@@ -445,12 +445,12 @@ class ActiveRecordTest < ActiveSupport::TestCase
   
   test "attribute_names returns translated and regular attribute names" do
     Post.create :subject => "foo", :content => "bar"
-    assert_equal Post.last.attribute_names.sort, %w[blog_id content id subject]
+    assert_equal Post.last.attribute_names.sort, %w[blog_id content id label subject]
   end
   
   test "attributes returns translated and regular attributes" do
     Post.create :subject => "foo", :content => "bar"
-    assert_equal Post.last.attributes.keys.sort, %w[blog_id content id subject]
+    assert_equal Post.last.attributes.keys.sort, %w[blog_id content id label subject]
   end
   
   test "to_xml includes translated fields" do
@@ -459,6 +459,55 @@ class ActiveRecordTest < ActiveSupport::TestCase
     assert Post.last.to_xml =~ /content/
   end
 
+  test "should create presence methods for attributes" do
+    post1 = Post.create :subject => "foo", :content => nil
+    post2 = Post.create :subject => ""
+
+    assert post1.respond_to?(:subject?)
+    assert post1.respond_to?(:content?)
+
+    assert post1.subject?
+    assert !post1.content?
+    assert !post2.subject?
+  end
+
+  test "dynamic find first matcher on multiple attributes" do
+    created = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    found = Post.find_by_subject_and_label("foo", "dummy")
+
+    assert created, found
+  end
+
+  test "dynamic find all matcher on multiple attributes" do
+    created1 = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    created2 = Post.create :subject => "foo", :content => "baz", :label => "dummy"
+
+    found = Post.find_all_by_subject_and_label("foo", "dummy")
+
+    assert [created1, created2], found
+  end
+
+  test "dynamic find last matcher on multiple attributes" do
+    created1 = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    created2 = Post.create :subject => "foo", :content => "baz", :label => "dummy"
+
+    found = Post.find_last_by_subject_and_label("foo", "dummy")
+
+    assert created2, found
+  end
+
+  test "dynamic find first matcher with too few values" do
+    created = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    found = Post.find_by_subject_and_label("foo")
+
+    assert created, found
+  end
+
+  test "dynamic find first matcher with bang" do
+    assert_raise(::ActiveRecord::RecordNotFound) do
+      Post.find_by_subject_and_label!("does_not_exist")
+    end
+  end
 end
 
 # TODO error checking for fields that exist in main table, don't exist in
