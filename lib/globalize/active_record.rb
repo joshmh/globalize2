@@ -54,7 +54,7 @@ module Globalize
 
         after_save :save_translations!
         has_many :translations, :class_name  => translation_class.name,
-                                :foreign_key => class_name.foreign_key,
+                                :foreign_key => self.name.foreign_key,
                                 :dependent   => :delete_all,
                                 :extend      => HasManyExtensions
 
