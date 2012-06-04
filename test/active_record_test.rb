@@ -321,9 +321,9 @@ class ActiveRecordTest < ActiveSupport::TestCase
     post.set_translations options
     post.reload
 
-    assert ["bar2", "bar2"], [post.subject, post.content]
+    assert_equal ["bar2", "bar2"], [post.subject, post.content]
     Post.locale = :de
-    assert ["foo2", "foo2"], [post.subject, post.content]
+    assert_equal ["foo2", "foo2"], [post.subject, post.content]
   end
 
   test "setting only one translation with set_translations" do
@@ -336,9 +336,9 @@ class ActiveRecordTest < ActiveSupport::TestCase
     post.set_translations options
     post.reload
 
-    assert ["bar2", "bar2"], [post.subject, post.content]
+    assert_equal ["bar2", "bar2"], [post.subject, post.content]
     Post.locale = :de
-    assert ["foo1", "foo1"], [post.subject, post.content]
+    assert_equal ["foo1", "foo1"], [post.subject, post.content]
   end
 
   test "setting only selected attributes with set_translations" do
@@ -351,9 +351,9 @@ class ActiveRecordTest < ActiveSupport::TestCase
     post.set_translations options
     post.reload
 
-    assert ["bar2", "bar1"], [post.subject, post.content]
+    assert_equal ["bar2", "bar1"], [post.subject, post.content]
     Post.locale = :de
-    assert ["foo1", "foo2"], [post.subject, post.content]
+    assert_equal ["foo1", "foo2"], [post.subject, post.content]
   end
 
   test "setting invalid attributes raises ArgumentError" do
@@ -445,18 +445,68 @@ class ActiveRecordTest < ActiveSupport::TestCase
   
   test "attribute_names returns translated and regular attribute names" do
     Post.create :subject => "foo", :content => "bar"
-    assert_equal Post.last.attribute_names.sort, %w[blog_id content id subject]
+    assert_equal Post.last.attribute_names.sort, %w[blog_id content id label subject]
   end
   
   test "attributes returns translated and regular attributes" do
     Post.create :subject => "foo", :content => "bar"
-    assert_equal Post.last.attributes.keys.sort, %w[blog_id content id subject]
+    assert_equal Post.last.attributes.keys.sort, %w[blog_id content id label subject]
   end
   
   test "to_xml includes translated fields" do
     Post.create :subject => "foo", :content => "bar"
     assert Post.last.to_xml =~ /subject/
     assert Post.last.to_xml =~ /content/
+  end
+
+  test "should create presence methods for attributes" do
+    post1 = Post.create :subject => "foo", :content => nil
+    post2 = Post.create :subject => ""
+
+    assert post1.respond_to?(:subject?)
+    assert post1.respond_to?(:content?)
+
+    assert post1.subject?
+    assert !post1.content?
+    assert !post2.subject?
+  end
+
+  test "dynamic find first matcher on multiple attributes" do
+    created = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    found = Post.find_by_subject_and_label("foo", "dummy")
+
+    assert_equal created, found
+  end
+
+  test "dynamic find all matcher on multiple attributes" do
+    created1 = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    created2 = Post.create :subject => "foo", :content => "baz", :label => "dummy"
+
+    found = Post.find_all_by_subject_and_label("foo", "dummy")
+
+    assert_equal [created1, created2], found
+  end
+
+  test "dynamic find last matcher on multiple attributes" do
+    created1 = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    created2 = Post.create :subject => "foo", :content => "baz", :label => "dummy"
+
+    found = Post.find_last_by_subject_and_label("foo", "dummy")
+
+    assert_equal created2, found
+  end
+
+  test "dynamic find first matcher with too few values" do
+    created = Post.create :subject => "foo", :content => "bar", :label => "dummy"
+    found = Post.find_by_subject_and_label("foo")
+
+    assert_equal created, found
+  end
+
+  test "dynamic find first matcher with bang" do
+    assert_raise(::ActiveRecord::RecordNotFound) do
+      Post.find_by_subject_and_label!("does_not_exist")
+    end
   end
 end
 

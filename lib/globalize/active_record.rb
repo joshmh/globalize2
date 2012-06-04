@@ -22,7 +22,7 @@ module Globalize
 
         klass.class_eval do
           set_table_name(options[:table_name])
-          belongs_to target.name.underscore.gsub('/', '_')
+          belongs_to target.base_class.name.underscore.gsub('/', '_')
           def locale; read_attribute(:locale).to_sym; end
           def locale=(locale); write_attribute(:locale, locale.to_s); end
         end
@@ -54,7 +54,7 @@ module Globalize
 
         after_save :save_translations!
         has_many :translations, :class_name  => translation_class.name,
-                                :foreign_key => class_name.foreign_key,
+                                :foreign_key => self.base_class.name.foreign_key,
                                 :dependent   => :delete_all,
                                 :extend      => HasManyExtensions
 
@@ -109,28 +109,59 @@ module Globalize
       end
 
       def respond_to?(method, *args, &block)
-        method.to_s =~ /^find_by_(\w+)$/ && translated_attribute_names.include?($1.to_sym) || super
+        !!dynamic_finder(method) || super
       end
 
       def method_missing(method, *args)
-        if method.to_s =~ /^find_by_(\w+)$/ && translated_attribute_names.include?($1.to_sym)
-          find_first_by_translated_attr_and_locales($1, args.first)
-        else
-          super
+        match = dynamic_finder(method)
+
+        if match
+          has_translated_attrs = match.attribute_names.any? do |attribute_name|
+            translated_attribute_names.include?(attribute_name.to_sym)
+          end
+          
+          return find_by_dynamic_match(match, args) if has_translated_attrs
         end
+
+        super
       end
 
       protected
 
-        def find_first_by_translated_attr_and_locales(name, value)
-          query = "#{translated_attr_name(name)} = ? AND #{translated_attr_name('locale')} IN (?)"
-          locales = Globalize.fallbacks(locale || I18n.locale).map(&:to_s)
-          find(
-            :first,
+        def dynamic_finder(method)
+          match = ::ActiveRecord::DynamicFinderMatch.match(method)
+          match if match && match.finder?
+        end
+
+        def find_by_dynamic_match(match, values)
+          conditions = []
+          match.attribute_names.each_with_index do |attribute_name, i|
+            break if i >= values.size
+
+            if translated_attribute_names.include?(attribute_name.to_sym)
+              field = translated_attr_name(attribute_name)
+            else
+              field = untranslated_attr_name(attribute_name)
+            end
+
+            conditions << "#{field} = ?"
+          end
+
+          values.map!(&:to_param)
+
+          conditions << "#{translated_attr_name('locale')} IN (?)"
+          values << Globalize.fallbacks(locale || I18n.locale).map(&:to_s)
+
+          result = find(match.finder, 
+            :readonly => false,
             :joins => :translations,
-            :conditions => [query, value, locales],
-            :readonly => false
-          )
+            :conditions => values.unshift(conditions.join(" AND ")))
+
+          if match.bang? && !result
+            raise(::ActiveRecord::RecordNotFound, "Couldn\'t find #{name} with provided values of #{match.attribute_names.join(', ')}")
+          end
+
+          result
         end
 
         def translated_attr_accessor(name)
@@ -138,14 +169,24 @@ module Globalize
             globalize.write(self.class.locale || I18n.locale, name, value)
             self[name] = value
           }
+
           define_method name, lambda { |*args|
             globalize.fetch(args.first || self.class.locale || I18n.locale, name)
           }
+
+          define_method "#{name}?", lambda { |*args|
+            globalize.fetch(args.first || self.class.locale || I18n.locale, name).present?
+          }
+
           alias_method "#{name}_before_type_cast", name
         end
 
         def translated_attr_name(name)
           "#{translation_class.table_name}.#{name}"
+        end
+
+        def untranslated_attr_name(name)
+          "#{table_name}.#{name}"
         end
     end
 
@@ -156,8 +197,11 @@ module Globalize
 
       def attributes
         self.attribute_names.inject({}) do |attrs, name|
-          attrs[name] = read_attribute(name) ||
-            (globalize.fetch(I18n.locale, name) rescue nil)
+          if @attributes.include? name.to_s
+            attrs[name] = read_attribute(name)
+          else
+            attrs[name] = (globalize.fetch(I18n.locale, name) rescue nil)
+          end
           attrs
         end
       end
@@ -196,10 +240,10 @@ module Globalize
         end
       end
 
-      def reload(options = nil)
+      def reload(*args)
         translated_attribute_names.each { |name| @attributes.delete(name.to_s) }
         globalize.reset
-        super(options)
+        super(*args)
       end
 
       protected
