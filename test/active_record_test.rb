@@ -321,9 +321,9 @@ class ActiveRecordTest < ActiveSupport::TestCase
     post.set_translations options
     post.reload
 
-    assert ["bar2", "bar2"], [post.subject, post.content]
+    assert_equal ["bar2", "bar2"], [post.subject, post.content]
     Post.locale = :de
-    assert ["foo2", "foo2"], [post.subject, post.content]
+    assert_equal ["foo2", "foo2"], [post.subject, post.content]
   end
 
   test "setting only one translation with set_translations" do
@@ -336,9 +336,9 @@ class ActiveRecordTest < ActiveSupport::TestCase
     post.set_translations options
     post.reload
 
-    assert ["bar2", "bar2"], [post.subject, post.content]
+    assert_equal ["bar2", "bar2"], [post.subject, post.content]
     Post.locale = :de
-    assert ["foo1", "foo1"], [post.subject, post.content]
+    assert_equal ["foo1", "foo1"], [post.subject, post.content]
   end
 
   test "setting only selected attributes with set_translations" do
@@ -351,9 +351,9 @@ class ActiveRecordTest < ActiveSupport::TestCase
     post.set_translations options
     post.reload
 
-    assert ["bar2", "bar1"], [post.subject, post.content]
+    assert_equal ["bar2", "bar1"], [post.subject, post.content]
     Post.locale = :de
-    assert ["foo1", "foo2"], [post.subject, post.content]
+    assert_equal ["foo1", "foo2"], [post.subject, post.content]
   end
 
   test "setting invalid attributes raises ArgumentError" do
@@ -475,7 +475,7 @@ class ActiveRecordTest < ActiveSupport::TestCase
     created = Post.create :subject => "foo", :content => "bar", :label => "dummy"
     found = Post.find_by_subject_and_label("foo", "dummy")
 
-    assert created, found
+    assert_equal created, found
   end
 
   test "dynamic find all matcher on multiple attributes" do
@@ -484,7 +484,7 @@ class ActiveRecordTest < ActiveSupport::TestCase
 
     found = Post.find_all_by_subject_and_label("foo", "dummy")
 
-    assert [created1, created2], found
+    assert_equal [created1, created2], found
   end
 
   test "dynamic find last matcher on multiple attributes" do
@@ -493,14 +493,14 @@ class ActiveRecordTest < ActiveSupport::TestCase
 
     found = Post.find_last_by_subject_and_label("foo", "dummy")
 
-    assert created2, found
+    assert_equal created2, found
   end
 
   test "dynamic find first matcher with too few values" do
     created = Post.create :subject => "foo", :content => "bar", :label => "dummy"
     found = Post.find_by_subject_and_label("foo")
 
-    assert created, found
+    assert_equal created, found
   end
 
   test "dynamic find first matcher with bang" do
