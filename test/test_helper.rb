@@ -38,12 +38,10 @@ class ActiveSupport::TestCase
   end
 end
 
-module ActiveRecord
-  module ConnectionAdapters
-    class AbstractAdapter
-      def index_exists?(table_name, column_name)
-        indexes(table_name).any? { |index| index.name == index_name(table_name, column_name) }
-      end
+ActiveRecord::Base.class_eval do
+  class << self
+    def index_exists_on?(column_name)
+      connection.indexes(table_name).any? { |index| index.columns == [column_name.to_s] }
     end
   end
 end
