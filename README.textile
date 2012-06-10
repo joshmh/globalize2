@@ -21,6 +21,12 @@ To install Globalize2 with its default setup just use:
 script/plugin install git://github.com/joshmh/globalize2.git
 </code></pre>
 
+Or you can use Globalize2 as a gem. Add the following to your Gemfile:
+
+<pre><code>
+gem 'globalize2', :git => 'git://github.com/joshmh/globalize2.git', :branch => 'rails-3'
+</code></pre>
+
 h2. Model translations
 
 Model translations allow you to translate your models' attribute values. E.g.
