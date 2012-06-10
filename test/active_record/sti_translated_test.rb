@@ -46,4 +46,16 @@ class StiTranslatedTest < ActiveSupport::TestCase
     I18n.locale = 'he-IL'
     assert_equal 'baz', child.content
   end
+  
+  test "works when STI class is defined before globalize is applied" do
+    child = EarlyChild.create :content => 'foo'
+    I18n.locale = 'de-DE'
+    child.content = 'bar'
+    child.save
+    I18n.locale = 'en-US'
+    child = EarlyChild.first
+    assert_equal 'foo', child.content
+    I18n.locale = 'de-DE'
+    assert_equal 'bar', child.content
+  end
 end

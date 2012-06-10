@@ -18,6 +18,12 @@ class Blog < ActiveRecord::Base
 end
 
 class Parent < ActiveRecord::Base
+end
+
+class EarlyChild < Parent
+end
+
+class Parent < ActiveRecord::Base
   translates :content
 end
 

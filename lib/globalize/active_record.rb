@@ -46,8 +46,11 @@ module Globalize
 
         class_inheritable_accessor :translation_class, :translated_attribute_names
         class_inheritable_writer :required_attributes
-        self.translation_class = ActiveRecord.build_translation_class(self, options)
-        self.translated_attribute_names = attr_names.map(&:to_sym)
+        
+        (subclasses_of(self) + [self]).each do |klass|
+          klass.translation_class = ActiveRecord.build_translation_class(self, options)
+          klass.translated_attribute_names = attr_names.map(&:to_sym)
+        end
 
         include InstanceMethods
         extend  ClassMethods, Migration
